@@ -9,6 +9,7 @@ resource "aws_instance" "dev_ops_week2" {
   key_name                    = "terraform_ec2_key"
   user_data                   = file("${path.module}/script.sh")
   associate_public_ip_address = true
+  security_groups             = aws_security_group.example_sg.name
 }
 
 resource "aws_security_group" "example_sg" {
@@ -22,7 +23,7 @@ resource "aws_security_group" "example_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["172.31.0.0/16"] # Замените <YOUR_HOME_IP> на ваш домашний IP
+    cidr_blocks = ["91.224.45.78/32"] # Замените <YOUR_HOME_IP> на ваш домашний IP
   }
 
   ingress {
@@ -57,7 +58,8 @@ resource "aws_key_pair" "terraform_ec2_key" {
 }
 
 output "instance_ip" {
-  value = aws_instance.dev_ops_week2
+  value       = aws_instance.dev_ops_week2
+  description = "Public IP address of the EC2 instance"
 }
 
 

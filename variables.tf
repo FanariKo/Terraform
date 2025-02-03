@@ -39,3 +39,31 @@ variable "home_ip" {
   type        = string
   default     = "91.224.45.78/32"
 }
+
+
+
+
+
+variable "secret_name" {
+  description = "Name of the AWS Secret"
+  type        = string
+  default     = "my-test-secret-3"
+}
+
+variable "secret_description" {
+  description = "Description of the AWS Secret"
+  type        = string
+  default     = "My test secret for demonstration purposes"
+}
+
+variable "secret_api_key" {
+  description = "API key stored in the secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "secret_db_password" {
+  description = "Database password stored in the secret"
+  type        = string
+  sensitive   = true
+}

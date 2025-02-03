@@ -11,6 +11,22 @@ resource "aws_instance" "dev_ops_week2" {
   security_groups             = [aws_security_group.example_sg.name]
 }
 
+resource "random_password" "password" {
+  length           = 16
+  special          = true
+  override_special = "!#$&*()-_=+[]{}<>:?"
+}
+
+
+resource "aws_secretsmanager_secret" "example" {
+  name        = "my-secret-password"
+  description = "Generated random password for my application"
+}
+
+resource "aws_secretsmanager_secret_version" "example" {
+  secret_id     = aws_secretsmanager_secret.example.id
+  secret_string = random_password.password.result
+}
 resource "aws_security_group" "example_sg" {
   name        = "example-security-group"
   description = "Allow SSH (home IP), HTTP, and HTTPS inbound; all traffic outbound"

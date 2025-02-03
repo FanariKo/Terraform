@@ -1,21 +1,20 @@
 provider "aws" {
-  region = "eu-north-1"
+  region = var.aws_region
 }
 
-
 resource "aws_instance" "dev_ops_week2" {
-  ami                         = "ami-09a9858973b288bdd"
-  instance_type               = "t3.micro"
-  key_name                    = "terraform_ec2_key"
+  ami                         = var.ami_id
+  instance_type               = var.instance_type
+  key_name                    = aws_key_pair.terraform_ec2_key.key_name
   user_data                   = file("${path.module}/script.sh")
   associate_public_ip_address = true
-  security_groups             = aws_security_group.example_sg.name
+  security_groups             = [aws_security_group.example_sg.name]
 }
 
 resource "aws_security_group" "example_sg" {
   name        = "example-security-group"
   description = "Allow SSH (home IP), HTTP, and HTTPS inbound; all traffic outbound"
-  vpc_id      = "vpc-0b6c4a4da62ad49b6" # Укажите ID вашего VPC
+  vpc_id      = var.vpc_id
 
   # Входящие правила (ingress)
   ingress {
@@ -23,7 +22,7 @@ resource "aws_security_group" "example_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["91.224.45.78/32"] # Замените <YOUR_HOME_IP> на ваш домашний IP
+    cidr_blocks = [var.home_ip]
   }
 
   ingress {
@@ -31,7 +30,7 @@ resource "aws_security_group" "example_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Разрешить всем
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -39,7 +38,7 @@ resource "aws_security_group" "example_sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Разрешить всем
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # Исходящие правила (egress)
@@ -47,19 +46,12 @@ resource "aws_security_group" "example_sg" {
     description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
-    protocol    = "-1" # Все протоколы
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 resource "aws_key_pair" "terraform_ec2_key" {
-  key_name   = "terraform_ec2_key"
-  public_key = file("terraform_ec2_key.pub")
-
+  key_name   = var.key_name
+  public_key = file(var.public_key_file)
 }
-
-output "instance_ip" {
-  value       = aws_instance.dev_ops_week2
-  description = "Public IP address of the EC2 instance"
-}
-
-
